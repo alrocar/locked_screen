@@ -1,0 +1,10 @@
+DESCRIPTION >
+    Generated from datasources/fixtures/events.ndjson
+
+SCHEMA >
+    duration Int16 `json:$.duration`,
+    status LowCardinality(String) `json:$.status`,
+    timestamp DateTime `json:$.timestamp`,
+    user String `json:$.user`
+
+ENGINE_SORTING_KEY user,timestamp
