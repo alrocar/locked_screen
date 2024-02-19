@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline con D3.js</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            background-color: #2A363B;
+            color: #FECEAB; /* Color para los ejes y etiquetas */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 20px; /* Tamaño de fuente base */
+        }
+
+        svg {
+            display: block;
+            margin: auto;
+        }
+
+        .legend {
+            background-color: #2A363B;
+            border-radius: 5px;
+            padding: 10px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1rem; /* Tamaño de fuente del eje */
+            z-index: 100;
+        }
+
+        .legend-item {
+            margin-bottom: 0.5rem; /* Espacio entre elementos de la leyenda */
+        }
+
+        .axis text {
+            font-size: 1rem; /* Tamaño de fuente del eje */
+        }
+    </style>
+</head>
+<body>
+    <svg id="timeline"></svg>
+
+    <!-- Leyenda -->
+    <div class="legend" id="legend"></div>
+
+    <script>
+        let datos = []
+        function obtenerDatos() {
+            fetch('https://api.tinybird.co/v0/pipes/untitled_pipe_8665.json?token=p.eyJ1IjogIjU3ODJhNDZmLTlkZDgtNGM0NS04YjM1LWM0ODhjNjFjMWNjNiIsICJpZCI6ICI1ZDViMWM4Zi1iM2MzLTQ1YmUtOWFkYy01OGE5OWUwNWNjNzIiLCAiaG9zdCI6ICJldV9zaGFyZWQifQ.sPdaYLNuiMOJMCIl35wLbP0QJad8pk6fnQug-4Zz4A0')
+                .then(response => response.json())
+                .then(data => {
+                    datos = data["data"];
+                    montarGrafica(datos);
+                    crearLeyenda(datos);
+                })
+                .catch(error => console.error('Error al obtener los datos:', error));
+        }
+
+        function montarGrafica(data) {
+            const svg = d3.select("#timeline");
+            const containerWidth = window.innerWidth;
+            const containerHeight = window.innerHeight;
+            const margin = { top: 20, right: 30, bottom: 30, left: 140 };
+            const width = containerWidth - margin.left - margin.right;
+            const height = containerHeight - margin.top - margin.bottom;
+            svg.attr("width", containerWidth).attr("height", containerHeight);
+
+            const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const parseTime = d3.timeParse("%H:%M:%S");
+
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.date))
+                .range([0, width])
+                .padding(0.1);
+
+            const y = d3.scaleTime()
+                .domain([parseTime("00:00:00"), parseTime("23:59:59")])
+                .range([height, 0]);
+
+            const color = d3.scaleOrdinal()
+                .domain(["unlocked", "locked"])
+                .range(["#E84A5F", "#99B89800"]);
+
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.date))
+                .attr("y", d => y(parseTime(d.end_timestamp.split(' ')[1])))
+                .attr("width", x.bandwidth())
+                .attr("height", d => y(parseTime(d.start_timestamp.split(' ')[1])) - y(parseTime(d.end_timestamp.split(' ')[1])))
+                .attr("fill", d => color(d.status));
+
+            g.append("g")
+                .attr("class", "axis axis-x")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+                g.append("g")
+                .attr("class", "axis axis-y")
+                .call(d3.axisLeft(y)
+                    .tickFormat(d3.timeFormat("%H:%M"))
+                    .ticks(d3.timeMinute.every(30))); // Mostrar todas las horas
+        }
+
+        function crearLeyenda(data) {
+            const legendDiv = document.getElementById("legend");
+            const parseTime = (timeString) => {
+                const [hours, minutes, seconds] = timeString.split(":").map(Number);
+                return (hours * 60) + minutes + (seconds / 60);
+            };
+
+            const dataByDay = data.reduce((acc, curr) => {
+                const date = curr.date;
+                const duration = parseTime(curr.end_timestamp.split(" ")[1]) - parseTime(curr.start_timestamp.split(" ")[1]);
+                acc[date] = (acc[date] || 0) + (curr.status === "unlocked" ? duration : 0);
+                return acc;
+            }, {});
+
+            for (const [date, duration] of Object.entries(dataByDay)) {
+                const totalHours = Math.floor(duration / 60);
+                const totalMinutes = Math.round(duration % 60);
+                const legendItem = document.createElement("div");
+                legendItem.classList.add("legend-item");
+                legendItem.textContent = `${date}: ${totalHours}:${totalMinutes < 10 ? '0' : ''}${totalMinutes} hours`;
+                legendDiv.appendChild(legendItem);
+            }
+        }
+
+        // Función para manejar el evento de cambio de tamaño de la ventana
+        function manejarCambioTamañoVentana() {
+            limpiarContenido();
+            montarGrafica(datos);
+            crearLeyenda(datos);
+        }
+
+                // Función para limpiar contenido existente
+                function limpiarContenido() {
+            d3.select("#timeline").selectAll("*").remove(); // Limpiar contenido del gráfico
+            document.getElementById("legend").innerHTML = ''; // Limpiar contenido de la leyenda
+        }
+
+        // Agregar listener para el evento de cambio de tamaño de la ventana
+        window.addEventListener("resize", manejarCambioTamañoVentana);
+
+        window.onload = obtenerDatos;
+    </script>
+</body>
+</html>
