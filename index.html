@@ -49,7 +49,7 @@
     <script>
         let datos = []
         function obtenerDatos() {
-            fetch('https://api.tinybird.co/v0/pipes/untitled_pipe_8665.json?token=p.eyJ1IjogIjU3ODJhNDZmLTlkZDgtNGM0NS04YjM1LWM0ODhjNjFjMWNjNiIsICJpZCI6ICI1ZDViMWM4Zi1iM2MzLTQ1YmUtOWFkYy01OGE5OWUwNWNjNzIiLCAiaG9zdCI6ICJldV9zaGFyZWQifQ.sPdaYLNuiMOJMCIl35wLbP0QJad8pk6fnQug-4Zz4A0')
+            fetch('https://api.tinybird.co/v0/pipes/timeline.json?token=p.eyJ1IjogIjkyMTY1Nzk1LWIxNDMtNDhmZC1iZDk0LTk1MmE2NWIxOTY2MiIsICJpZCI6ICJkMjdlYjFhZi0wMThjLTQ2OGMtYTM2Yy0wMjQwOGNkZjg5ZGUiLCAiaG9zdCI6ICJldV9zaGFyZWQifQ.9IdP76HEHwZE0MBQK2gYOgxiYdi1fS81d5WmYbTx8AE')
                 .then(response => response.json())
                 .then(data => {
                     datos = data["data"];
