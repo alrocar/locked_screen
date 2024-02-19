@@ -1,4 +1,4 @@
-TOKEN "untitled_pipe_8665_endpoint_read_2898" READ
+TOKEN "read" READ
 
 NODE untitled_pipe_8665_0
 SQL >
@@ -115,23 +115,4 @@ SQL >
         dateDiff('second', start_timestamp, end_timestamp) duration
     FROM untitled_pipe_8665_3
     ORDER BY start_timestamp desc
-
-
-
-NODE untitled_pipe_8665_5
-SQL >
-
-    with now() as st, now() + interval 2 day as et
-    select st, et, arrayJoin(timeSlots(st, toUInt32(dateDiff('second', st, et)), 24*60*60))
-
-
-
-
-NODE untitled_pipe_8665_6
-SQL >
-
-    with now() as st, now() as et
-    select st, et, arrayJoin(timeSlots(st, toUInt32(dateDiff('second', st, et)), 24*60*60))
-
-
 
