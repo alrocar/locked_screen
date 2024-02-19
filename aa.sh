@@ -1,4 +1,3 @@
-
 #!/bin/bash
 source .lock_screen_cfg
 
@@ -26,8 +25,9 @@ while true; do
 
   end_time=$(date +%s)
   execution_time=$((end_time - start_time))
-  sleep_time=$((LOCKED_SCREEN_SLEEP_TIME - execution_time))
-  
+  next_start_time=$((start_time + LOCKED_SCREEN_SLEEP_TIME))
+  sleep_time=$((next_start_time - end_time))
+
   if [ "$sleep_time" -gt 0 ]; then
     sleep $sleep_time
   else
