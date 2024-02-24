@@ -14,7 +14,7 @@ SQL >
             lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
         FROM
             events
-       -- where toDate(timestamp) = '2024-02-17'
+       where timestamp >= now() - interval 7 day
     ),
     ChangeGroups AS (
         SELECT
@@ -47,7 +47,7 @@ SQL >
             lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
         FROM
             events
-    --    where toDate(timestamp) = '2024-02-18'
+          where timestamp >= now() - interval 7 day
     ),
     ChangeGroups AS (
         SELECT
