@@ -14,7 +14,7 @@ SQL >
             lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
         FROM
             events
-       where timestamp >= now() - interval 7 day and dayOfWeek(now()) not in (6, 7)
+       where timestamp >= now() - interval 7 day and dayOfWeek(timestamp) not in (6, 7)
     ),
     ChangeGroups AS (
         SELECT
@@ -47,7 +47,7 @@ SQL >
             lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
         FROM
             events
-          where timestamp >= now() - interval 7 day and dayOfWeek(now()) not in (6, 7)
+          where timestamp >= now() - interval 7 day and dayOfWeek(timestamp) not in (6, 7)
     ),
     ChangeGroups AS (
         SELECT
