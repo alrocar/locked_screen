@@ -6,6 +6,6 @@ SQL >
     select toDate(timestamp) date, sum(duration) duration, app
     from events
     where user = 'alrocar' and app is not null
-    and date = today()
+    and date = today() and status = 'unlocked'
     group by app, date
     order by duration desc
