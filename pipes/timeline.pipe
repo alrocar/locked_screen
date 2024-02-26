@@ -100,7 +100,7 @@ SQL >
 
 
 
-NODE untitled_pipe_8665_4
+NODE endpoint
 SQL >
 
     SELECT
