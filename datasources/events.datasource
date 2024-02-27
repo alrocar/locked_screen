@@ -7,7 +7,7 @@ SCHEMA >
     `timestamp` DateTime `json:$.timestamp`,
     `user` String `json:$.user`,
     `app` Nullable(String) `json:$.app`,
-    `domains` Array(Nullable(String)) `json:$.domains`
+    `domains` Array(Nullable(String)) `json:$.domains[:]`
 
 ENGINE "MergeTree"
 ENGINE_PARTITION_KEY "toYear(timestamp)"
