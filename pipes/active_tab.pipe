@@ -8,7 +8,7 @@ SQL >
         sum(duration) duration,
         arrayJoin(domains) domain
     from events
-    where user = 'alrocar' and domain is not null
+    where user = 'alrocar' and domain is not null and domain != ''
     and date = today() and status = 'unlocked'
     group by domain, date
     order by duration desc
