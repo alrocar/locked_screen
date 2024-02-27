@@ -6,7 +6,8 @@ SCHEMA >
     `status` LowCardinality(String) `json:$.status`,
     `timestamp` DateTime `json:$.timestamp`,
     `user` String `json:$.user`,
-    `app` Nullable(String) `json:$.app`
+    `app` Nullable(String) `json:$.app`,
+    `domains` Array(Nullable(String)) `json:$.domains`
 
 ENGINE "MergeTree"
 ENGINE_PARTITION_KEY "toYear(timestamp)"
