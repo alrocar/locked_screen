@@ -8,7 +8,7 @@ while true; do
   locked_screen=$(ddcctl -d 1 | grep "Failed to poll")
   active_app=$(osascript -e 'tell application "System Events" to get name of application processes whose frontmost is true')
   active_tab_url=$(osascript -e 'tell application "Arc" to get URL of active tab of window 1')
-  active_domain=$(echo "$url" | awk -F/ '{print $3}')
+  active_domain=$(echo "$active_tab_url" | awk -F/ '{print $3}')
 
   if [ -n "$locked_screen" ]; then
     echo "Locked screen!"
