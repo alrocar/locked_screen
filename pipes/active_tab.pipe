@@ -1,0 +1,14 @@
+TOKEN "read" READ
+
+NODE active_tab_0
+SQL >
+    %
+    select
+        toDate(timestamp) date,
+        sum(duration) duration,
+        arrayJoin(domains) domain
+    from events
+    where user = 'alrocar' and domain is not null
+    and date = today() and status = 'unlocked'
+    group by domain, date
+    order by duration desc
