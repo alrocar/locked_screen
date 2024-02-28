@@ -12,3 +12,4 @@ SQL >
     and date = today() and status = 'unlocked'
     group by domain, date
     order by duration desc
+    limit 6
