@@ -1,0 +1,18 @@
+LOCKED_SCREEN_SLEEP_TIME=10
+LOCKED_TB_TOKEN=
+LOCKED_SCREEN_USER=alrocar
+
+# 010 to force clock-in
+# 001 to force clock-out
+# 100 to auto-clock on locked screen
+# 000 to disable
+CLOCK=1
+CLOCKIN=0
+CLOCKOUT=0
+
+FHR_EMAIL=
+FHR_PWD=
+FHR_PROVIDER="Google"
+
+FACTORIAL_SESSION=
+
