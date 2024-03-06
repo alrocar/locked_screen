@@ -1,7 +1,10 @@
 #!/bin/bash
-source .lock_screen_cfg
+previous_state="uninitialized"
+
+# set -x
 
 while true; do
+  source .lock_screen_cfg
   start_time=$(date +%s)
   current_date=$(date -u +'%Y-%m-%d %H:%M:%S')
 
@@ -10,8 +13,21 @@ while true; do
   active_tab_url=$(osascript -e 'tell application "System Events" to if (name of first application process whose frontmost is true) is "Arc" then tell application "Arc" to get URL of active tab of window 1')
   active_domain=$(echo "$active_tab_url" | awk -F/ '{print $3}')
   echo $active_domain
+  if [ "${CLOCKOUT:-0}" -eq 1 ]; then
+    python hr.py clock-out
+  fi
+
+  if [ "${CLOCKIN:-0}" -eq 1 ]; then
+    python hr.py clock-in
+  fi
+
   if [ -n "$locked_screen" ]; then
+    # Verificar si el estado anterior era locked_screen
+      if [ "$previous_state" != "locked" ] && [ "${CLOCK:-0}" -eq 1 ]; then
+        python hr.py clock-out
+      fi
     echo "Locked screen!"
+    previous_state="locked"
     curl \
       -X POST 'https://api.tinybird.co/v0/events?name=events&wait=false' \
       -H "Authorization: Bearer $LOCKED_TB_TOKEN" \
@@ -19,6 +35,10 @@ while true; do
       &
   else
     echo "Okay Let's Go!"
+      if [ "$previous_state" != "unlocked" ] && [ "${CLOCK:-0}" -eq 1 ]; then
+        python hr.py clock-in
+      fi
+    previous_state="unlocked"
     curl \
       -X POST 'https://api.tinybird.co/v0/events?name=events&wait=false' \
       -H "Authorization: Bearer $LOCKED_TB_TOKEN" \

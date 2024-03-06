@@ -1,1 +1,4 @@
 tinybird-cli>=3
+selenium==4.18.1
+requests
+python-dotenv
