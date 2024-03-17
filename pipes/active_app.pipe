@@ -3,12 +3,8 @@ TOKEN "read" READ
 NODE active_app_0
 SQL >
     %
-    select
-        toDate(timestamp) date,
-        sum(duration) duration,
-        if(app == 'Electron', 'VSCode', app) app
+    select toDate(timestamp) date, sum(duration) duration, if(app == 'Electron', 'VSCode', app) app
     from events
-    where user = 'alrocar' and app is not null
-    and date = today() and status = 'unlocked'
+    where user = 'alrocar' and app is not null and date = today() and status = 'unlocked'
     group by app, date
     order by duration desc
