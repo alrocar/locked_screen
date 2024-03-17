@@ -1,10 +1,8 @@
 TOKEN "read" READ
-
 TOKEN "duration_by_day_endpoint_read_8592" READ
 
 NODE timeline_2_1
 SQL >
-
     WITH StatusChanges AS (
         SELECT
             toStartOfInterval(timestamp, interval 10 seconds) timestamp,
@@ -32,24 +30,23 @@ SQL >
         status,
         change_group
 
-
-
 NODE timeline_2_3
 SQL >
-
-    SELECT 
+    SELECT
         status,
         start_timestamp,
         end_timestamp,
-        arrayJoin(timeSlots(start_timestamp, toUInt32(dateDiff('second', start_timestamp, end_timestamp)), 24*60*60)) as slot
-    FROM 
-      timeline_2_1
-
-
+        arrayJoin(
+            timeSlots(
+                start_timestamp,
+                toUInt32(dateDiff('second', start_timestamp, end_timestamp)),
+                24 * 60 * 60
+            )
+        ) as slot
+    FROM timeline_2_1
 
 NODE timeline_2_4
 SQL >
-
     SELECT
         status,
         toDate(slot) date,
@@ -64,18 +61,11 @@ SQL >
     WHERE status = 'unlocked'
     ORDER BY start_timestamp desc
 
-
-
 NODE timeline_2_4b
 SQL >
-
     SELECT sum(duration) duration, date FROM timeline_2_4 group by date
-
-
 
 NODE duration_by_day_4
 SQL >
-
-    SELECT groupArray(duration / (8 * 60 * 60) / 134 * 100 * 100) duration, groupArray(date) date FROM timeline_2_4b
-
-
+    SELECT groupArray(duration / (8 * 60 * 60) / 134 * 100 * 100) duration, groupArray(date) date
+    FROM timeline_2_4b
