@@ -1,0 +1,113 @@
+TOKEN "read" READ
+
+NODE timeline_2_1
+SQL >
+
+    WITH StatusChanges AS (
+        SELECT
+            toStartOfInterval(timestamp, interval 10 seconds) timestamp,
+            status,
+            lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
+        FROM
+            events
+          --where timestamp >= now() - interval 6 day and dayOfWeek(timestamp) not in (6, 7)
+          where 1 and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
+    ),
+    ChangeGroups AS (
+        SELECT
+            timestamp,
+            status,
+            SUM(CASE WHEN prev_status IS NULL OR prev_status <> status THEN 1 ELSE 0 END) OVER (ORDER BY timestamp) AS change_group
+        FROM
+            StatusChanges
+    )
+    SELECT
+        MIN(timestamp) AS start_timestamp,
+        MAX(timestamp) AS end_timestamp,
+        status
+    FROM
+        ChangeGroups
+    GROUP BY
+        status,
+        change_group
+
+
+
+NODE timeline_2_3
+SQL >
+
+    SELECT 
+        status,
+        start_timestamp,
+        end_timestamp,
+        arrayJoin(timeSlots(start_timestamp, toUInt32(dateDiff('second', start_timestamp, end_timestamp)), 24*60*60)) as slot
+    FROM 
+      timeline_2_1
+
+
+
+NODE timeline_2_4
+SQL >
+
+    SELECT
+        status,
+        toDate(slot) date,
+        if(toDate(start_timestamp) == toDate(slot), start_timestamp, slot) start_timestamp,
+        if(
+            toDate(end_timestamp) == toDate(slot),
+            end_timestamp,
+            slot + interval 1 day - interval 1 second
+        ) end_timestamp,
+        dateDiff('second', start_timestamp, end_timestamp) duration
+    FROM timeline_2_3
+    WHERE status = 'unlocked'
+    ORDER BY start_timestamp desc
+
+
+
+NODE timeline_2_4b
+SQL >
+
+    SELECT sum(duration) duration, date FROM timeline_2_4 group by date
+
+
+
+NODE timeline_2_5
+SQL >
+
+    with
+        (
+            SELECT
+                (
+                    groupArray(
+                        replaceAll(
+                            replaceAll(
+                                replaceAll(
+                                    arrayConcat(
+                                        splitByString(' and', formatReadableTimeDelta(duration))
+                                    )[1],
+                                    ' hours, ',
+                                    ':'
+                                ),
+                                'hours',
+                                ''
+                            ),
+                            'minutes',
+                            ''
+                        )
+                    ),
+                    groupArray(date)
+                )
+            FROM timeline_2_4b
+        ) as t,
+        toDayOfWeek(date) as d
+    SELECT
+        concat(formatDateTime(date, '%a', 'UTC'), ' - ', transform(date, t .2, t .1, ''), 'h.') x,
+        [
+            toUnixTimestamp64Milli(toDateTime64(start_timestamp - interval d day, 3, 'UTC')),
+            toUnixTimestamp64Milli(toDateTime64(end_timestamp - interval d day, 3, 'UTC'))
+        ] as y
+    FROM timeline_2_4
+    order by date asc
+
+

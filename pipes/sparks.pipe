@@ -1,0 +1,68 @@
+TOKEN "read" READ
+
+TOKEN "sparks_endpoint_read_5893" READ
+
+NODE sparks_0
+SQL >
+
+    %
+        select
+            toDate(timestamp) date,
+            sum(duration) duration,
+            if(app == 'Electron', 'VSCode', app) app,
+            arrayJoin(domains) domain
+        from events
+        where user = 'alrocar' and app is not null
+        --and timestamp >= now() - interval {{Int8(days, 7)}} day and dayOfWeek(timestamp) not in (6, 7)
+        and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
+        and status = 'unlocked'
+        group by app, date, domain
+        order by app, date with fill INTERPOLATE ( duration AS 0 )
+    --    order by duration desc
+
+
+
+NODE sparks_1
+SQL >
+
+    %
+    {% if defined(type) %}
+        {% if type == 'slack' %}
+            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            FROM sparks_0
+            where domain like '%slack%'
+            group by date
+            order by date asc
+        {% elif type == 'coding' %}
+            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            FROM sparks_0
+            where app in ['VSCode', 'iTerm2']
+            group by date
+            order by date asc
+        {% elif type == 'git' %}
+            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            FROM sparks_0
+            where domain like '%git%'
+            group by date
+            order by date asc
+        {% else %}
+            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            FROM sparks_0
+            group by date
+            order by date asc
+        {% end %}
+    {% else %}
+        SELECT date, round(sum(duration) / 60 / 60, 2) duration
+        FROM sparks_0
+        group by date
+        order by date asc
+    {% end %}
+
+
+
+NODE sparks_2
+SQL >
+
+    SELECT groupArray(duration) data FROM sparks_1
+
+
