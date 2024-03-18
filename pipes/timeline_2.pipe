@@ -92,7 +92,7 @@ SQL >
         ) as t,
         toDayOfYear(date) as d
     SELECT
-        concat(formatDateTime(date, '%a', 'UTC'), ' - ', transform(date, t .2, t .1, ''), 'h.') x,
+        concat(formatDateTime(date, '%a %e', 'UTC'), ' - ', transform(date, t .2, t .1, ''), 'h.') x,
         [
             toUnixTimestamp64Milli(toDateTime64(start_timestamp - interval d day, 3, 'UTC')),
             toUnixTimestamp64Milli(toDateTime64(end_timestamp - interval d day, 3, 'UTC'))
