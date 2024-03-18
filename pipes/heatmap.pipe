@@ -4,7 +4,7 @@ TOKEN "heatmap_endpoint_read_3859" READ
 NODE heatmap_0
 SQL >
     select
-        toStartOfWeek(timestamp) name,
+        toStartOfWeek(timestamp, 1) name,
         round(sum(duration) / 60 / 60, 2) d,
         formatDateTime(timestamp, '%a') day
     from filter_events
