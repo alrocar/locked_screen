@@ -13,7 +13,7 @@ SQL >
             {% elif dashboard == 'monthly' %}
                 and timestamp >= today() - interval 30 day and dayOfWeek(timestamp) not in (6, 7)
             {% elif dashboard == 'month' %}
-                and timestamp >= toStartOfMonth(timestamp) and dayOfWeek(timestamp) not in (6, 7)
+                and timestamp >= toStartOfMonth(now()) and dayOfWeek(timestamp) not in (6, 7)
             {% else %} {{ error('dashboard type not supported') }}
             {% end %}
         {% end %}
