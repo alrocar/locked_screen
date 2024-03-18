@@ -10,7 +10,11 @@ SQL >
         if(app == 'Electron', 'VSCode', app) app,
         arrayJoin(domains) domain
     from filter_events
-    where app is not null and status = 'unlocked'
+    where
+        app is not null
+        and status = 'unlocked'
+        and domain not like '%ind%tin%'
+        and domain not like '%split%tin%'
     group by app, date, domain
     order by app, date
     with fill INTERPOLATE(duration AS 0)
