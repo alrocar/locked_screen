@@ -56,4 +56,4 @@ SQL >
 
 NODE sparks_2
 SQL >
-    SELECT groupArray(duration) data FROM sparks_1
+    SELECT groupArray(duration) data FROM sparks_1 where duration > 0
