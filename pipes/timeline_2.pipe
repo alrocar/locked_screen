@@ -56,7 +56,7 @@ SQL >
         ) end_timestamp,
         dateDiff('second', start_timestamp, end_timestamp) duration
     FROM timeline_2_3
-    WHERE status = 'unlocked'
+    WHERE status = 'unlocked' AND duration < 10 * 60 * 60
     ORDER BY start_timestamp desc
 
 NODE timeline_2_4b
