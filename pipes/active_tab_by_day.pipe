@@ -9,9 +9,11 @@ SQL >
     where
         domain is not null
         and domain != ''
-        and domain not like '%indit%'
+        and domain not like '%ind%tin%'
+        and domain not like '%spl%tin%'
         and domain not like '%apex%'
         and status = 'unlocked'
+        and app = 'Arc'
     group by domain, date
     order by domain, date
     with fill INTERPOLATE(duration AS 0)

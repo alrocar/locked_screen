@@ -26,7 +26,7 @@ SQL >
         {% if type == 'slack' %}
             SELECT date, round(sum(duration) / 60 / 60, 2) duration
             FROM sparks_0
-            where domain like '%slack%'
+            where domain like '%slack%' and app = 'Arc'
             group by date
             order by date asc
         {% elif type == 'coding' %}
@@ -38,7 +38,7 @@ SQL >
         {% elif type == 'git' %}
             SELECT date, round(sum(duration) / 60 / 60, 2) duration
             FROM sparks_0
-            where domain like '%git%'
+            where domain like '%git%' and app = 'Arc'
             group by date
             order by date asc
         {% else %}
