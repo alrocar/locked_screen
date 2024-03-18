@@ -5,17 +5,10 @@ NODE active_app_by_day_0
 SQL >
     %
     select toDate(timestamp) date, sum(duration) duration, if(app == 'Electron', 'VSCode', app) app
-    from events
-    where
-        user = 'alrocar' and app is not null
-        {% if defined(days) %}
-            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-            and dayOfWeek(timestamp) not in (6, 7)
-        {% else %} and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-        {% end %} and status = 'unlocked' and app != 'Arc' and app not like '%Chrome%'
+    from filter_events
+    where app is not null and app != 'Arc' and app not like '%Chrome%' and status = 'unlocked'
     group by app, date
     order by app, date
-    -- order by duration desc
     with fill INTERPOLATE(duration AS 0)
 
 NODE dates
@@ -25,41 +18,12 @@ SQL >
     from
         (
             with
-                (
-                    select min(toDate(timestamp))
-                    from events
-                    where
-                        user = 'alrocar' and app is not null
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
-                ) as start,
-                (
-                    select max(toDate(timestamp))
-                    from events
-                    where
-                        user = 'alrocar' and app is not null
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
-                ) as end,
+                (select min(toDate(timestamp)) from filter_events where app is not null) as start,
+                (select max(toDate(timestamp)) from filter_events where app is not null) as end,
                 (
                     select groupArray(distinct(if(app == 'Electron', 'VSCode', app))) apps
-                    from events
-                    where
-                        user = 'alrocar' and app is not null
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
+                    from filter_events
+                    where app is not null
                 ) as apps
             SELECT assumeNotNull(arrayJoin([start, end])) AS date, apps, 0 as duration
             order by date asc

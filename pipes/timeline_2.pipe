@@ -8,9 +8,7 @@ SQL >
             status,
             lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
         FROM
-            events
-          --where timestamp >= now() - interval 6 day and dayOfWeek(timestamp) not in (6, 7)
-          where 1 and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
+            filter_events
     ),
     ChangeGroups AS (
         SELECT
@@ -92,7 +90,7 @@ SQL >
                 )
             FROM timeline_2_4b
         ) as t,
-        toDayOfWeek(date) as d
+        toDayOfYear(date) as d
     SELECT
         concat(formatDateTime(date, '%a', 'UTC'), ' - ', transform(date, t .2, t .1, ''), 'h.') x,
         [
