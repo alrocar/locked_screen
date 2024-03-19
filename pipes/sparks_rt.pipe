@@ -9,15 +9,17 @@ SQL >
         sum(duration) duration,
         if(app == 'Electron', 'VSCode', app) app,
         arrayJoin(domains) domain
-    from filter_events
+    from events
     where
-        app is not null
+        user = 'alrocar'
+        and toDate(timestamp) == today()
+        and app is not null
         and status = 'unlocked'
         and domain not like '%ind%tin%'
         and domain not like '%split%tin%'
     group by app, date, domain
     order by app, date
-    with fill INTERPOLATE(duration AS 0)
+    with fill step interval 1 hour INTERPOLATE(duration AS 0)
 
 NODE sparks_1
 SQL >
