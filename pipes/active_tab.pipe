@@ -1,7 +1,7 @@
 TOKEN "read" READ
 TOKEN "active_tab_endpoint_read_7436" READ
 
-NODE active_tab_0
+NODE active_tab_00
 SQL >
     %
     select round(sum(duration) / 60 / 60, 4) duration, arrayJoin(domains) domain
@@ -17,4 +17,4 @@ SQL >
 
 NODE active_tab_1
 SQL >
-    SELECT groupArray(duration) data, groupArray(domain) categories FROM active_tab_0
+    SELECT groupArray(duration) data, groupArray(domain) categories FROM active_tab_00
