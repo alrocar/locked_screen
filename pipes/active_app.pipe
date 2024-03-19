@@ -1,7 +1,7 @@
 TOKEN "read" READ
 TOKEN "active_app_endpoint_read_8658" READ
 
-NODE active_app_0
+NODE active_app_00
 SQL >
     %
     select round(sum(duration) / 60 / 60, 4) duration, if(app == 'Electron', 'VSCode', app) app
@@ -12,4 +12,4 @@ SQL >
 
 NODE active_app_1
 SQL >
-    SELECT groupArray(duration) data, groupArray(app) categories FROM active_app_0
+    SELECT groupArray(duration) data, groupArray(app) categories FROM active_app_00
