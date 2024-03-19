@@ -24,31 +24,31 @@ SQL >
     %
     {% if defined(type) %}
         {% if type == 'slack' %}
-            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            SELECT date, round(sum(duration) / 60 / 60, 4) duration
             FROM sparks_0
             where domain like '%slack%' and app = 'Arc'
             group by date
             order by date asc
         {% elif type == 'coding' %}
-            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            SELECT date, round(sum(duration) / 60 / 60, 4) duration
             FROM sparks_0
             where app in ['VSCode', 'iTerm2']
             group by date
             order by date asc
         {% elif type == 'git' %}
-            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            SELECT date, round(sum(duration) / 60 / 60, 4) duration
             FROM sparks_0
             where domain like '%git%' and app = 'Arc'
             group by date
             order by date asc
         {% else %}
-            SELECT date, round(sum(duration) / 60 / 60, 2) duration
+            SELECT date, round(sum(duration) / 60 / 60, 4) duration
             FROM sparks_0
             group by date
             order by date asc
         {% end %}
     {% else %}
-        SELECT date, round(sum(duration) / 60 / 60, 2) duration
+        SELECT date, round(sum(duration) / 60 / 60, 4) duration
         FROM sparks_0
         group by date
         order by date asc

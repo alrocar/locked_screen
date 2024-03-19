@@ -1,16 +1,20 @@
 TOKEN "read" READ
+TOKEN "active_tab_endpoint_read_7436" READ
 
 NODE active_tab_0
 SQL >
     %
-    select toDate(timestamp) date, sum(duration) duration, arrayJoin(domains) domain
+    select round(sum(duration) / 60 / 60, 4) duration, arrayJoin(domains) domain
     from events
     where
         user = 'alrocar'
         and domain is not null
         and domain != ''
-        and date = today()
+        and toDate(timestamp) = today()
         and status = 'unlocked'
-    group by domain, date
+    group by domain
     order by duration desc
-    limit 6
+
+NODE active_tab_1
+SQL >
+    SELECT groupArray(duration) data, groupArray(domain) categories FROM active_tab_0
