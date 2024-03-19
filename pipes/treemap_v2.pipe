@@ -16,8 +16,9 @@ SQL >
 
 NODE treemap_1
 SQL >
-    SELECT round(sum(duration) / 60 / 60, 2) y, if(app = 'Arc', domain, app) x
+    %
+    SELECT round(sum(duration) / 60 / 60, 4) y, if(app = 'Arc', domain, app) x
     FROM treemap_0
     where x not like '%ind%tin%' and x not like '%split%tin%' and x != ''
     group by x
-    having y > 0.4
+    {% if defined(dashboard) and dashboard != 'rt' %} having y > 0.4 {% end %}
