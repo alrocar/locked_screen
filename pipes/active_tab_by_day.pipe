@@ -4,7 +4,12 @@ TOKEN "active_tab_by_day_endpoint_read_2077" READ
 NODE active_tab_by_day_1
 SQL >
     %
-    select toDate(timestamp) date, sum(duration) duration, arrayJoin(domains) domain
+    select
+        {% if defined(dashboard) and dashboard == 'rt' %} toStartOfHour(timestamp) date,
+        {% else %} toDate(timestamp) date,
+        {% end %}
+        sum(duration) duration,
+        arrayJoin(domains) domain
     from filter_events
     where
         domain is not null
@@ -16,7 +21,12 @@ SQL >
         and app = 'Arc'
     group by domain, date
     order by domain, date
-    with fill INTERPOLATE(duration AS 0)
+    with
+        fill
+        {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+        {% else %} step interval 1 day
+        {% end %}
+        INTERPOLATE(duration AS 0)
 
 NODE dates
 SQL >
@@ -28,9 +38,27 @@ SQL >
                 (select min(toDate(timestamp)) from filter_events where app is not null) as start,
                 (select max(toDate(timestamp)) from filter_events where app is not null) as end,
                 (select groupArray(distinct(arrayJoin(domains))) _domains from filter_events) as domains
-            SELECT assumeNotNull(arrayJoin([start, end])) AS date, domains, 0 as duration
+            SELECT
+                {% if defined(dashboard) and dashboard == 'rt' %}
+                    assumeNotNull(
+                        arrayJoin(
+                            [
+                                toStartOfHour(toDateTime(start)),
+                                toStartOfHour(toDateTime(end) + interval 1 day - interval 1 second)
+                            ]
+                        )
+                    ) AS date,
+                {% else %} assumeNotNull(arrayJoin([start, end])) AS date,
+                {% end %}
+                domains,
+                0 as duration
             order by date asc
-            with fill interpolate(domains)
+            with
+                fill
+                {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+                {% else %} step interval 1 day
+                {% end %}
+                interpolate(domains)
         )
 
 NODE active_tab_by_day_3
