@@ -89,14 +89,35 @@ SQL >
                     groupArray(date)
                 )
             FROM timeline_2_4b
-        ) as t,
-        toDayOfYear(date) as d
+        ) as t
     SELECT
         concat(formatDateTime(date, '%a %e', 'UTC'), ' - ', transform(date, t .2, t .1, ''), 'h.') x,
         [
-            toUnixTimestamp64Milli(toDateTime64(start_timestamp - interval d day, 3, 'UTC')),
-            toUnixTimestamp64Milli(toDateTime64(end_timestamp - interval d day, 3, 'UTC'))
+            toUnixTimestamp64Milli(toDateTime64(toTime(start_timestamp), 3, 'UTC')),
+            toUnixTimestamp64Milli(toDateTime64(toTime(end_timestamp), 3, 'UTC'))
         ] as y
     FROM timeline_2_4
-    where toHour(start_timestamp) > 6 and toHour(end_timestamp) > 6
-    order by date asc, y[1] asc
+    where toHour(start_timestamp) >= 5 and toHour(end_timestamp) <= 22
+    order by date desc
+    union all
+    select
+        'Work hours' x,
+        [
+            toUnixTimestamp64Milli(
+                toDateTime64(toTime(parseDateTimeBestEffort('1970-01-01 22:59:59')), 3, 'UTC')
+            ),
+            toUnixTimestamp64Milli(
+                toDateTime64(toTime(parseDateTimeBestEffort('1970-01-01 22:59:59')), 3, 'UTC')
+            )
+        ] y
+    union all
+    select
+        'Work hours' x,
+        [
+            toUnixTimestamp64Milli(
+                toDateTime64(toTime(parseDateTimeBestEffort('1970-01-01 05:00:00')), 3, 'UTC')
+            ),
+            toUnixTimestamp64Milli(
+                toDateTime64(toTime(parseDateTimeBestEffort('1970-01-01 05:00:00')), 3, 'UTC')
+            )
+        ] y
