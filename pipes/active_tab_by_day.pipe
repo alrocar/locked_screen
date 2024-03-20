@@ -55,3 +55,4 @@ SQL >
     where not arrayAll(x -> x == 0, data) and arrayCount(x -> x > 0.2, data) > 0 and name != ''
     order by arraySum(data) desc
     limit {{ Int8(limit, 3) }}
+    offset {{ Int8(offset, 0) }} by date
