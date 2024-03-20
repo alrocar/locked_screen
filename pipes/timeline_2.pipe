@@ -2,31 +2,26 @@ TOKEN "read" READ
 
 NODE timeline_2_1
 SQL >
-    WITH StatusChanges AS (
-        SELECT
-            toStartOfInterval(timestamp, interval 10 seconds) timestamp,
-            status,
-            lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
-        FROM
-            filter_events
-    ),
-    ChangeGroups AS (
-        SELECT
-            timestamp,
-            status,
-            SUM(CASE WHEN prev_status IS NULL OR prev_status <> status THEN 1 ELSE 0 END) OVER (ORDER BY timestamp) AS change_group
-        FROM
-            StatusChanges
-    )
-    SELECT
-        MIN(timestamp) AS start_timestamp,
-        MAX(timestamp) AS end_timestamp,
-        status
-    FROM
-        ChangeGroups
-    GROUP BY
-        status,
-        change_group
+    WITH
+        StatusChanges AS (
+            SELECT
+                toStartOfInterval(timestamp, interval 10 seconds) timestamp,
+                status,
+                lagInFrame(status) OVER (ORDER BY timestamp) AS prev_status
+            FROM filter_events
+        ),
+        ChangeGroups AS (
+            SELECT
+                timestamp,
+                status,
+                SUM(if(prev_status IS NULL OR prev_status <> status, 1, 0)) OVER (
+                    ORDER BY timestamp
+                ) AS change_group
+            FROM StatusChanges
+        )
+    SELECT MIN(timestamp) AS start_timestamp, MAX(timestamp) AS end_timestamp, status
+    FROM ChangeGroups
+    GROUP BY status, change_group
 
 NODE timeline_2_3
 SQL >
