@@ -1,23 +1,25 @@
 TOKEN "read" READ
-TOKEN "sparks_endpoint_read_5893" READ
+TOKEN "sparks_rt_endpoint_read_8633" READ
 
 NODE sparks_0
 SQL >
     %
     select
-        toDate(timestamp) date,
+        toStartOfHour(timestamp) date,
         sum(duration) duration,
         if(app == 'Electron', 'VSCode', app) app,
         arrayJoin(domains) domain
-    from filter_events
+    from events
     where
-        app is not null
+        user = 'alrocar'
+        and toDate(timestamp) == today()
+        and app is not null
         and status = 'unlocked'
         and domain not like '%ind%tin%'
         and domain not like '%split%tin%'
     group by app, date, domain
     order by app, date
-    with fill INTERPOLATE(duration AS 0)
+    with fill step interval 1 hour INTERPOLATE(duration AS 0)
 
 NODE sparks_1
 SQL >
@@ -56,4 +58,4 @@ SQL >
 
 NODE sparks_2
 SQL >
-    SELECT groupArray(duration) data FROM sparks_1 where duration > 0
+    SELECT groupArray(duration) data FROM sparks_1

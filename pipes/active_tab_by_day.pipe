@@ -4,23 +4,29 @@ TOKEN "active_tab_by_day_endpoint_read_2077" READ
 NODE active_tab_by_day_1
 SQL >
     %
-    select toDate(timestamp) date, sum(duration) duration, arrayJoin(domains) domain
-    from events
+    select
+        {% if defined(dashboard) and dashboard == 'rt' %} toStartOfHour(timestamp) date,
+        {% else %} toDate(timestamp) date,
+        {% end %}
+        sum(duration) duration,
+        arrayJoin(domains) domain
+    from filter_events
     where
-        user = 'alrocar'
-        and domain is not null
+        domain is not null
         and domain != ''
-        and domain not like '%indit%'
+        and domain not like '%ind%tin%'
+        and domain not like '%spl%tin%'
         and domain not like '%apex%'
-        {% if defined(days) %}
-            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-            and dayOfWeek(timestamp) not in (6, 7)
-        {% else %} and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-        {% end %} and status = 'unlocked'
+        and status = 'unlocked'
+        and app = 'Arc'
     group by domain, date
     order by domain, date
-    -- order by duration desc
-    with fill INTERPOLATE(duration AS 0)
+    with
+        fill
+        {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+        {% else %} step interval 1 day
+        {% end %}
+        INTERPOLATE(duration AS 0)
 
 NODE dates
 SQL >
@@ -29,45 +35,30 @@ SQL >
     from
         (
             with
-                (
-                    select min(toDate(timestamp))
-                    from events
-                    where
-                        user = 'alrocar' and app is not null
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
-                ) as start,
-                (
-                    select max(toDate(timestamp))
-                    from events
-                    where
-                        user = 'alrocar' and app is not null
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
-                ) as end,
-                (
-                    select groupArray(distinct(arrayJoin(domains))) _domains
-                    from events
-                    where
-                        user = 'alrocar'
-                        {% if defined(days) %}
-                            and timestamp >= now() - interval {{ Int8(days, 5) }} day
-                            and dayOfWeek(timestamp) not in (6, 7)
-                        {% else %}
-                            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
-                        {% end %} and status = 'unlocked'
-                ) as domains
-            SELECT assumeNotNull(arrayJoin([start, end])) AS date, domains, 0 as duration
+                (select min(toDate(timestamp)) from filter_events where app is not null) as start,
+                (select max(toDate(timestamp)) from filter_events where app is not null) as end,
+                (select groupArray(distinct(arrayJoin(domains))) _domains from filter_events) as domains
+            SELECT
+                {% if defined(dashboard) and dashboard == 'rt' %}
+                    assumeNotNull(
+                        arrayJoin(
+                            [
+                                toStartOfHour(toDateTime(start)),
+                                toStartOfHour(toDateTime(end) + interval 1 day - interval 1 second)
+                            ]
+                        )
+                    ) AS date,
+                {% else %} assumeNotNull(arrayJoin([start, end])) AS date,
+                {% end %}
+                domains,
+                0 as duration
             order by date asc
-            with fill interpolate(domains)
+            with
+                fill
+                {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+                {% else %} step interval 1 day
+                {% end %}
+                interpolate(domains)
         )
 
 NODE active_tab_by_day_3
@@ -89,6 +80,10 @@ SQL >
     %
     SELECT *
     FROM active_tab_by_day_4
-    where not arrayAll(x -> x == 0, data) and arrayCount(x -> x > 0.2, data) > 0 and name != ''
+    where
+        not arrayAll(x -> x == 0, data)
+        and arrayCount(x -> x > {{ Float32(duration, 0.2) }}, data) > 0
+        and name != ''
     order by arraySum(data) desc
     limit {{ Int8(limit, 3) }}
+    offset {{ Int8(offset, 0) }} by date

@@ -1,0 +1,29 @@
+NODE filter_events_0
+SQL >
+    %
+    select *
+    from events
+    where
+        user = 'alrocar'
+        -- and status = 'unlocked'
+        {% if defined(dashboard) %}
+            {% if dashboard == 'rt' %} and toDate(timestamp) == today()
+            {% elif dashboard == 'weekly' %}
+                and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
+            {% elif dashboard == 'monthly' %}
+                and timestamp >= today() - interval 30 day and dayOfWeek(timestamp) not in (6, 7)
+            {% elif dashboard == 'month' %}
+                {% if defined(heatmap) and heatmap == '1' %}
+                    and timestamp >= toStartOfWeek(toStartOfMonth(now()))
+                    and dayOfWeek(timestamp) not in (6, 7)
+                {% else %} and timestamp >= toStartOfMonth(now()) and dayOfWeek(timestamp) not in (6, 7)
+                {% end %}
+            {% else %} {{ error('dashboard type not supported') }}
+            {% end %}
+        {% end %}
+        {% if defined(days) %}
+            and timestamp >= now() - interval {{ Int8(days) }} day
+            and dayOfWeek(timestamp) not in (6, 7)
+        {% elif not defined(dashboard) %}
+            and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
+        {% end %}

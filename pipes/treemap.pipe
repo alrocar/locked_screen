@@ -1,0 +1,33 @@
+TOKEN "read" READ
+TOKEN "treemap_endpoint_read_8525" READ
+
+NODE treemap_0
+SQL >
+    select
+        toDate(timestamp) date,
+        sum(duration) duration,
+        if(app == 'Electron', 'VSCode', app) app,
+        arrayJoin(domains) domain
+    from filter_events
+    where app is not null and status = 'unlocked'
+    group by app, date, domain
+    order by app, date
+    with fill INTERPOLATE(duration AS 0)
+
+NODE treemap_1
+SQL >
+    SELECT
+        if(app == 'Arc', 'browser', 'app') name,
+        round(sum(duration) / 60 / 60, 2) y,
+        if(name = 'browser', domain, app) x
+    FROM treemap_0
+    where x not like '%ind%tin%' and x not like '%split%tin%'
+    group by name, x
+
+NODE treemap_2
+SQL >
+    SELECT *, map('x', x, 'y', toString(y)) m FROM treemap_1 where y > 0.4 and x != ''
+
+NODE treemap_3
+SQL >
+    SELECT name, groupArray(m) data FROM treemap_2 group by name
