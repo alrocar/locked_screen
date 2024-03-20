@@ -98,4 +98,5 @@ SQL >
             toUnixTimestamp64Milli(toDateTime64(end_timestamp - interval d day, 3, 'UTC'))
         ] as y
     FROM timeline_2_4
+    where toHour(start_timestamp) > 6 and toHour(end_timestamp) > 6
     order by date asc, y[1] asc
