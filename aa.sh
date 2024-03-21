@@ -1,5 +1,8 @@
 #!/bin/bash
 previous_state="uninitialized"
+brew services start yabai
+
+# while true; do yabai -m query --spaces | jq -r '.[] | select(.display == 2 and .["is-visible"] == true and .["has-focus"] == true) | .id'; sleep 1; done
 
 # set -x
 
