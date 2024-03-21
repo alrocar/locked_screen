@@ -12,8 +12,7 @@ SQL >
     from events
     where
         user = 'alrocar'
-        and space != 'personal'
-        and space is not null
+        and (space != 'personal' or space is null)
         and toDate(timestamp) == {{ Date(date) }}
         and app is not null
         and status = 'unlocked'
