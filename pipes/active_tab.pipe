@@ -9,6 +9,7 @@ SQL >
     where
         user = 'alrocar'
         and space != 'personal'
+        and space is not null
         and domain is not null
         and domain != ''
         and toDate(timestamp) = {{ Date(date) }}

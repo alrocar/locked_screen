@@ -13,6 +13,7 @@ SQL >
     where
         user = 'alrocar'
         and space != 'personal'
+        and space is not null
         and toDate(timestamp) == {{ Date(date) }}
         and app is not null
         and status = 'unlocked'
