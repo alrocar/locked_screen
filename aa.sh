@@ -2,8 +2,6 @@
 previous_state="uninitialized"
 brew services start yabai
 
-# while true; do yabai -m query --spaces | jq -r '.[] | select(.display == 2 and .["is-visible"] == true and .["has-focus"] == true) | .id'; sleep 1; done
-
 # set -x
 
 while true; do
@@ -15,6 +13,7 @@ while true; do
   active_app=$(osascript -e 'tell application "System Events" to get name of application processes whose frontmost is true')
   active_tab_url=$(osascript -e 'tell application "System Events" to if (name of first application process whose frontmost is true) is "Arc" then tell application "Arc" to get URL of active tab of window 1')
   active_domain=$(echo "$active_tab_url" | awk -F/ '{print $3}')
+  space=$(yabai -m query --spaces | jq -r '.[] | select(.display == 2 and .["is-visible"] == true and .["has-focus"] == true) | .label')
   echo $active_domain
   if [ "${CLOCKOUT:-0}" -eq 1 ]; then
     python hr.py clock-out
@@ -34,7 +33,7 @@ while true; do
     curl \
       -X POST 'https://api.tinybird.co/v0/events?name=events&wait=false' \
       -H "Authorization: Bearer $LOCKED_TB_TOKEN" \
-      -d "{\"timestamp\":\"$current_date\",\"status\":\"locked\",\"user\":\"$LOCKED_SCREEN_USER\",\"duration\":$LOCKED_SCREEN_SLEEP_TIME,\"app\":\"$active_app\",\"domains\":[\"$active_domain\"],\"tabs\":[\"$active_tab_url\"]}" \
+      -d "{\"timestamp\":\"$current_date\",\"status\":\"locked\",\"user\":\"$LOCKED_SCREEN_USER\",\"duration\":$LOCKED_SCREEN_SLEEP_TIME,\"app\":\"$active_app\",\"domains\":[\"$active_domain\"],\"tabs\":[\"$active_tab_url\"],\"space\":\"$space\"}" \
       &
   else
     # single=$(ddcctl -d 1 2>&1)
@@ -47,7 +46,7 @@ while true; do
       curl \
         -X POST 'https://api.tinybird.co/v0/events?name=events&wait=false' \
         -H "Authorization: Bearer $LOCKED_TB_TOKEN" \
-        -d "{\"timestamp\":\"$current_date\",\"status\":\"unlocked\",\"user\":\"$LOCKED_SCREEN_USER\",\"duration\":$LOCKED_SCREEN_SLEEP_TIME,\"app\":\"$active_app\",\"domains\":[\"$active_domain\"],\"tabs\":[\"$active_tab_url\"]}" \
+        -d "{\"timestamp\":\"$current_date\",\"status\":\"unlocked\",\"user\":\"$LOCKED_SCREEN_USER\",\"duration\":$LOCKED_SCREEN_SLEEP_TIME,\"app\":\"$active_app\",\"domains\":[\"$active_domain\"],\"tabs\":[\"$active_tab_url\"],\"space\":\"$space\"}" \
         &
     # fi
   fi
