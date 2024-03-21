@@ -4,7 +4,7 @@ SQL >
     select *
     from events
     where
-        user = 'alrocar' and space != 'personal' and space is not null
+        user = 'alrocar' and (space != 'personal' or space is null)
         -- and status = 'unlocked'
         {% if defined(dashboard) %}
             {% if dashboard == 'rt' %} and toDate(timestamp) == {{ Date(date) }}
