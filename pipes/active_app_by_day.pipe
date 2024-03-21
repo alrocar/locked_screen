@@ -18,6 +18,7 @@ SQL >
     with
         fill
         {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+        {% elif defined(dashboard) and dashboard == 'yes' %} step interval 1 hour
         {% else %} step interval 1 day
         {% end %}
         INTERPOLATE(duration AS 0)
@@ -37,7 +38,7 @@ SQL >
                     where app is not null
                 ) as apps
             SELECT
-                {% if defined(dashboard) and dashboard == 'rt' %}
+                {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
                     assumeNotNull(
                         arrayJoin(
                             [
@@ -53,7 +54,8 @@ SQL >
             order by date asc
             with
                 fill
-                {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+                {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
+                    step interval 1 hour
                 {% else %} step interval 1 day
                 {% end %}
                 interpolate(apps)
