@@ -12,7 +12,7 @@ SQL >
     from events
     where
         user = 'alrocar'
-        and toDate(timestamp) == today()
+        and toDate(timestamp) == {{ Date(date) }}
         and app is not null
         and status = 'unlocked'
         and domain not like '%ind%tin%'
