@@ -6,6 +6,7 @@ SQL >
     %
     select
         {% if defined(dashboard) and dashboard == 'rt' %} toStartOfHour(timestamp) date,
+        {% elif defined(dashboard) and dashboard == 'yes' %} toStartOfHour(timestamp) date,
         {% else %} toDate(timestamp) date,
         {% end %}
         sum(duration) duration,
