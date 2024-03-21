@@ -7,7 +7,8 @@ SQL >
         user = 'alrocar'
         -- and status = 'unlocked'
         {% if defined(dashboard) %}
-            {% if dashboard == 'rt' %} and toDate(timestamp) == today()
+            {% if dashboard == 'rt' %} and toDate(timestamp) == {{ Date(date) }}
+            {% elif dashboard == 'yes' %} and toDate(timestamp) == {{ Date(date) }}
             {% elif dashboard == 'weekly' %}
                 and timestamp >= toMonday(now()) and dayOfWeek(timestamp) not in (6, 7)
             {% elif dashboard == 'monthly' %}

@@ -6,7 +6,11 @@ SQL >
     %
     select round(sum(duration) / 60 / 60, 4) duration, if(app == 'Electron', 'VSCode', app) app
     from events
-    where user = 'alrocar' and app is not null and toDate(timestamp) = today() and status = 'unlocked'
+    where
+        user = 'alrocar'
+        and app is not null
+        and toDate(timestamp) = {{ Date(date) }}
+        and status = 'unlocked'
     group by app
     order by duration desc
 

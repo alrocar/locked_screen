@@ -5,7 +5,8 @@ NODE active_tab_by_day_1
 SQL >
     %
     select
-        {% if defined(dashboard) and dashboard == 'rt' %} toStartOfHour(timestamp) date,
+        {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
+            toStartOfHour(timestamp) date,
         {% else %} toDate(timestamp) date,
         {% end %}
         sum(duration) duration,
@@ -23,7 +24,7 @@ SQL >
     order by domain, date
     with
         fill
-        {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+        {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %} step interval 1 hour
         {% else %} step interval 1 day
         {% end %}
         INTERPOLATE(duration AS 0)
@@ -39,7 +40,7 @@ SQL >
                 (select max(toDate(timestamp)) from filter_events where app is not null) as end,
                 (select groupArray(distinct(arrayJoin(domains))) _domains from filter_events) as domains
             SELECT
-                {% if defined(dashboard) and dashboard == 'rt' %}
+                {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
                     assumeNotNull(
                         arrayJoin(
                             [
@@ -55,7 +56,8 @@ SQL >
             order by date asc
             with
                 fill
-                {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+                {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
+                    step interval 1 hour
                 {% else %} step interval 1 day
                 {% end %}
                 interpolate(domains)

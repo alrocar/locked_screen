@@ -10,7 +10,7 @@ SQL >
         user = 'alrocar'
         and domain is not null
         and domain != ''
-        and toDate(timestamp) = today()
+        and toDate(timestamp) = {{ Date(date) }}
         and status = 'unlocked'
     group by domain
     order by duration desc
