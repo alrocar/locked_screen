@@ -1,4 +1,11 @@
 #!/bin/bash
+# I built this script for myself, I don't expect to work on any other computer than mine. You can tweak it to your needs if you want.
+# see the script for the command line tools you need:
+# - yabai: to get the current desktop
+# - ddcctl: to check if external monitors are on or off
+# - python: to run hr.py (clock-in/out to FactorialHR)
+# - curl: traces are stored in a Tinybird workspace
+
 previous_state="uninitialized"
 brew services start yabai
 
