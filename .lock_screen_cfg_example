@@ -1,7 +1,11 @@
+# report each 10 seconds
 LOCKED_SCREEN_SLEEP_TIME=10
+# a Tinybird token with append permissions
 LOCKED_TB_TOKEN=
-LOCKED_SCREEN_USER=alrocar
+# a unique identifier for your user
+LOCKED_SCREEN_USER=
 
+# use these variables to handle clock-in/clock-out to factorial. Leave a 100 for auto
 # 010 to force clock-in
 # 001 to force clock-out
 # 100 to auto-clock on locked screen
@@ -10,9 +14,13 @@ CLOCK=1
 CLOCKIN=0
 CLOCKOUT=0
 
+# I do not have access to my FactorialHR org. auth token secrets, so I use selenium to get a session cookie and use it to automatize clock-in/clock-out
+# your FactorialHR google email
 FHR_EMAIL=
+# your FactorialHR password
 FHR_PWD=
+# Only works with Google, you have to modify hr.py to support other providers
 FHR_PROVIDER="Google"
-
+# This is filled by hr.py, you can set it manually if you want
 FACTORIAL_SESSION=
 
