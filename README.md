@@ -5,7 +5,7 @@ It contains two scripts:
 - aa.sh: To be executed as a daemon to collect traces
 - hr.py: To clock-in/clock-out to FactorialHR. I don't have access to my org authentication secrets so it uses Selenium to log in and get a cookie session for the API.
 
-I built this script for myself, I don't expect to work on any other computer than mine. You can try to tweak it to your needs if you want.
+I built this script for myself, I don't expect to work on any other setup than mine. You can try to tweak it to your needs if you want.
 
 aa.sh uses:
 - yabai: to get the current desktop
