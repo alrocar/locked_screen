@@ -14,7 +14,7 @@ aa.sh uses:
 - curl: To send traces to a Tinybird Data Source
 - osascript: to get the current application and browser tab (Arc) used
 
-The script sents a trace to Tinybird every 10 seconds indicating:
+The script sends a trace to Tinybird every 10 seconds indicating:
 - if the external monitors are 'locked' or 'unlocked'
 - the current active desktop space: 'personal' or 'work'
 - the active_app, active_domain and url
