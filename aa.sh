@@ -1,10 +1,18 @@
 #!/bin/bash
-# I built this script for myself, I don't expect to work on any other computer than mine. You can tweak it to your needs if you want.
+# I built this script for myself, I don't expect to work on any other computer than mine. You can try to tweak it to your needs if you want.
 # see the script for the command line tools you need:
 # - yabai: to get the current desktop
 # - ddcctl: to check if external monitors are on or off
 # - python: to run hr.py (clock-in/out to FactorialHR)
 # - curl: traces are stored in a Tinybird workspace
+# - osascript: to get the current application and browser (Arc) tab used
+
+# The script sents a trace to Tinybird every 10 seconds indicating:
+# if the external monitors are 'locked' or 'unlocked'
+# the current active desktop space: 'personal' or 'work'
+# the active_app, active_domain and url
+# it clocks-in to FactorialHR when the monitors are unlocked and clocks-out when they are off
+# Tinybird is used to build an analytical dashboard. The Tinybird project is not provided (yet)
 
 previous_state="uninitialized"
 brew services start yabai
