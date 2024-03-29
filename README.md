@@ -1,9 +1,9 @@
-This repo contains a shell script to monitor how I use my computer and improve my productivity.
+This repo contains a shell script (aa.sh) to monitor how I use my computer and improve my productivity.
 
 It contains two scripts:
 
 - aa.sh: To be executed as a daemon to collect traces
-- hr.py: To clock-in/clock-out to FactorialHR. I don't have access to my orgs authentication secrets so it uses Selenium to log in and get a cookie session for the API.
+- hr.py: To clock-in/clock-out to FactorialHR. I don't have access to my org authentication secrets so it uses Selenium to log in and get a cookie session for the API.
 
 I built this script for myself, I don't expect to work on any other computer than mine. You can try to tweak it to your needs if you want.
 
@@ -20,9 +20,9 @@ The script sents a trace to Tinybird every 10 seconds indicating:
 - the active_app, active_domain and url
 - it clocks-in to FactorialHR when the monitors are unlocked and clocks-out when they are off
 
-www.tinybird.co is used to build an analytical dashboard. The Tinybird project is not provided (yet).
+www.tinybird.co is used to build an analytical dashboard based on the traces sent. The Tinybird project is not provided (yet).
 
-With the traces sent I can get a view of my work patterns at different granularities.
+With the traces sent I can get a view of my work patterns at different granularities and check if I'm working "too much" or spending "too much" time in slack, meetings or other stuff.
 
 ![](rt.png)
 
