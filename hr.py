@@ -105,7 +105,7 @@ def get_headers():
 
 def now():
     fecha_actual = datetime.now()
-    fecha_actual_utc_mas_uno = fecha_actual.astimezone(timezone(timedelta(hours=1)))
+    fecha_actual_utc_mas_uno = fecha_actual.astimezone(timezone(timedelta(hours=2)))
     return fecha_actual_utc_mas_uno.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
