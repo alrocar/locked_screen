@@ -1,0 +1,35 @@
+TOKEN "read" READ
+TOKEN "heatmap_endpoint_read_3859" READ
+
+NODE heatmap_0
+SQL >
+    select
+        toStartOfWeek(timestamp, 1) name,
+        round(sum(duration) / 60 / 60, 2) d,
+        formatDateTime(timestamp, '%a') day,
+        toDayOfWeek(timestamp) dayOfWeek
+    from filter_events
+    where status = 'unlocked'
+    group by name, day, dayOfWeek
+    order by name, toDayOfMonth(name)
+
+NODE heatmap_1
+SQL >
+    with
+        arraySort((x, y) -> y, _days, daysOfWeek) as __days,
+        arraySort((x, y) -> y, _data, daysOfWeek) as __data,
+        arrayMap(
+            x -> formatDateTime(parseDateTime(toString(x), '%w'), '%a'),
+            range(1, 6 - arrayCount(x -> 1, __days))
+        ) as fill_days,
+        arrayMap(x -> 0, range(0, 5 - arrayCount(x -> 1, __days))) as fill_data
+    select
+        name,
+        if(arraySort(daysOfWeek)[1] != 1, arrayConcat(fill_days, __days), __days) days,
+        if(arraySort(daysOfWeek)[1] != 1, arrayConcat(fill_data, __data), __data) data
+    from
+        (
+            SELECT name, groupArray(d) _data, groupArray(day) _days, groupArray(dayOfWeek) daysOfWeek
+            FROM heatmap_0
+            group by name
+        )

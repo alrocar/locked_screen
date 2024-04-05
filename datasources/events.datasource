@@ -1,0 +1,16 @@
+DESCRIPTION >
+    Generated from datasources/fixtures/events.ndjson
+
+SCHEMA >
+    `duration` Int16 `json:$.duration`,
+    `status` LowCardinality(String) `json:$.status`,
+    `timestamp` DateTime `json:$.timestamp`,
+    `user` String `json:$.user`,
+    `app` Nullable(String) `json:$.app`,
+    `domains` Array(Nullable(String)) `json:$.domains[:]`,
+    `tabs` Array(Nullable(String)) `json:$.tabs[:]`,
+    `space` Nullable(String) `json:$.space`
+
+ENGINE MergeTree
+ENGINE_PARTITION_KEY toYear(timestamp)
+ENGINE_SORTING_KEY user, timestamp

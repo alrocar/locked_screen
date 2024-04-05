@@ -1,0 +1,87 @@
+TOKEN "read" READ
+TOKEN "active_app_by_day_endpoint_read_5384" READ
+
+NODE active_app_by_day_0
+SQL >
+    %
+    select
+        {% if defined(dashboard) and dashboard == 'rt' %} toStartOfHour(timestamp) date,
+        {% elif defined(dashboard) and dashboard == 'yes' %} toStartOfHour(timestamp) date,
+        {% else %} toDate(timestamp) date,
+        {% end %}
+        sum(duration) duration,
+        if(app == 'Electron', 'VSCode', app) app
+    from filter_events
+    where app is not null and app != 'Arc' and app not like '%Chrome%' and status = 'unlocked'
+    group by app, date
+    order by app, date
+    with
+        fill
+        {% if defined(dashboard) and dashboard == 'rt' %} step interval 1 hour
+        {% elif defined(dashboard) and dashboard == 'yes' %} step interval 1 hour
+        {% else %} step interval 1 day
+        {% end %}
+        INTERPOLATE(duration AS 0)
+
+NODE dates
+SQL >
+    %
+    select date, arrayJoin(apps) app, duration
+    from
+        (
+            with
+                (select min(toDate(timestamp)) from filter_events where app is not null) as start,
+                (select max(toDate(timestamp)) from filter_events where app is not null) as
+        end,
+        (
+            select groupArray(distinct(if(app == 'Electron', 'VSCode', app))) apps
+            from filter_events
+            where app is not null
+        ) as apps
+    SELECT
+        {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %}
+            assumeNotNull(
+                arrayJoin(
+                    [
+                        toStartOfHour(toDateTime(start)),
+                        toStartOfHour(toDateTime(end) + interval 1 day - interval 1 second
+                    )
+                ]
+            )
+    ) AS date, {% else %} assumeNotNull(arrayJoin([start, end])
+    ) AS date, {% end %}
+    apps,
+    0 as duration
+    order by date asc
+    with
+        fill
+        {% if defined(dashboard) and (dashboard == 'rt' or dashboard == 'yes') %} step interval 1 hour
+        {% else %} step interval 1 day
+        {% end %}
+        interpolate(apps)
+    )
+
+NODE active_app_by_day_2a
+SQL >
+    %
+    select d.date, d.app, d.duration + b.duration / 60 / 60 duration
+    from dates d
+    left join active_app_by_day_0 as b using date, app
+    order by date asc, duration desc
+
+NODE active_app_by_day_2b
+SQL >
+    SELECT groupArray(date) date, groupArray(round(duration, 2)) data, app name
+    FROM active_app_by_day_2a
+    group by name
+
+NODE active_app_by_day_4
+SQL >
+    %
+    SELECT *
+    FROM active_app_by_day_2b
+    where
+        not arrayAll(x -> x == 0, data) and arrayCount(x -> x > {{ Float32(duration, 0.2) }}, data) > 0
+    order by arraySum(data) desc
+    limit {{ Int8(limit, 3) }}
+    offset {{ Int8(offset, 0) }} by date
