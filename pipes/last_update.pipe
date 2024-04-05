@@ -1,0 +1,6 @@
+TOKEN "read" READ
+TOKEN "last_update_endpoint_read_5533" READ
+
+NODE last_update_0
+SQL >
+    SELECT max(timestamp) timestamp FROM events where user = 'alrocar'
