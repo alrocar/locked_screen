@@ -1,0 +1,22 @@
+
+    ##################################################
+    ###   Visit https://github.com/tinybirdco/ci   ###
+    ###   for more details or custom CI/CD         ###
+    ##################################################
+
+    name: Tinybird locked_screen - CD Workflow
+
+    on:
+      workflow_dispatch:
+      push:
+        branches:
+          - main
+          - master
+    jobs:
+      cd:  # deploy changes to workspace 'locked_screen'
+        uses: tinybirdco/ci/.github/workflows/cd.yml@v3.1.0
+        with:
+          data_project_dir: .
+        secrets:
+          tb_admin_token: ${{ secrets.TB_LOCKED_SCREEN_ADMIN_TOKEN }}  # set the Workspace admin token in GitHub secrets
+          tb_host: https://api.tinybird.co
