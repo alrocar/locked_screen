@@ -9,8 +9,9 @@ SCHEMA >
     `app` Nullable(String) `json:$.app`,
     `domains` Array(Nullable(String)) `json:$.domains[:]`,
     `tabs` Array(Nullable(String)) `json:$.tabs[:]`,
-    `space` Nullable(String) `json:$.space`
+    `space` Nullable(String) `json:$.space`,
+    `window_title` Nullable(String) `json:$.window_title`
 
-ENGINE MergeTree
-ENGINE_PARTITION_KEY toYear(timestamp)
-ENGINE_SORTING_KEY user, timestamp
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYear(timestamp)"
+ENGINE_SORTING_KEY "user, timestamp"

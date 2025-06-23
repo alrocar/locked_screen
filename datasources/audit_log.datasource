@@ -1,0 +1,10 @@
+
+SCHEMA >
+    `level` String `json:$.level`,
+    `message` String `json:$.message`,
+    `timestamp` DateTime `json:$.timestamp`,
+    `user_id` String `json:$.user_id`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYear(timestamp)"
+ENGINE_SORTING_KEY "timestamp, level, message, user_id"

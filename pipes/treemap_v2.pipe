@@ -1,8 +1,6 @@
-TOKEN "read" READ
-TOKEN "treemap_v2_endpoint_read_8283" READ
-
 NODE treemap_0
 SQL >
+
     select
         toDate(timestamp) date,
         sum(duration) duration,
@@ -14,11 +12,16 @@ SQL >
     order by app, date
     with fill INTERPOLATE(duration AS 0)
 
+
+
 NODE treemap_1
 SQL >
+
     %
-    SELECT round(sum(duration) / 60 / 60, 4) y, if(app = 'Arc', domain, app) x
-    FROM treemap_0
-    where x not like '%ind%tin%' and x not like '%split%tin%' and x != ''
-    group by x
-    {% if defined(dashboard) and dashboard != 'rt' %} having y > 0.4 {% end %}
+        SELECT round(sum(duration) / 60 / 60, 4) y, if(app = 'Arc', domain, app) x
+        FROM treemap_0
+        where x not like '%ind%tin%' and x not like '%split%tin%' and x != ''
+        group by x
+        {% if defined(dashboard) and dashboard != 'rt' %} having y > 0.4 {% end %}
+
+
